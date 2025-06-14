@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Speed Tester</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 2rem;
+      background: #f0f2f5;
+    }
+    #sentence {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    #inputBox {
+      width: 90%;
+      max-width: 600px;
+      padding: 1rem;
+      font-size: 1.2rem;
+    }
+    .button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 10px;
+      cursor: pointer;
+    }
+    #timer {
+      font-size: 1.2rem;
+      color: #333;
+      margin-top: 1rem;
+    }
+    #results {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+    }
+    .highlight-wrong {
+      color: red;
+      background-color: #ffd6d6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Typing Speed Tester</h1>
+  <div id="sentence"></div>
+  <textarea id="inputBox" rows="5" placeholder="Start typing here..." disabled></textarea><br>
+  <button class="button" id="startBtn">Start</button>
+  <button class="button" id="finishBtn" disabled>Finish</button>
+  <button class="button" id="tryAgainBtn" style="display:none">Try Again</button>
+  <div id="timer">Timer: 0s</div>
+  <div id="results"></div>
+
+  <script>
+    const sentences = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing speed tests help improve accuracy and speed.",
+      "Practice every day to become a better typist."
+    ];
+
+    const sentenceEl = document.getElementById("sentence");
+    const inputBox = document.getElementById("inputBox");
+    const startBtn = document.getElementById("startBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
+    const timerEl = document.getElementById("timer");
+    const resultsEl = document.getElementById("results");
+
+    let startTime, interval, selectedSentence;
+
+    function startTest() {
+      selectedSentence = sentences[Math.floor(Math.random() * sentences.length)];
+      sentenceEl.innerText = selectedSentence;
+      inputBox.value = "";
+      inputBox.disabled = false;
+      inputBox.focus();
+      finishBtn.disabled = false;
+      tryAgainBtn.style.display = "none";
+      resultsEl.innerHTML = "";
+      startTime = Date.now();
+      interval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      timerEl.innerText = `Timer: ${seconds}s`;
+    }
+
+    function finishTest() {
+      clearInterval(interval);
+      const endTime = Date.now();
+      const timeTaken = (endTime - startTime) / 1000;
+      const typed = inputBox.value.trim();
+      const correctWords = selectedSentence.trim().split(" ");
+      const typedWords = typed.split(" ");
+      let correctCount = 0;
+
+      let highlighted = "";
+      for (let i = 0; i < correctWords.length; i++) {
+        if (typedWords[i] === correctWords[i]) {
+          highlighted += correctWords[i] + " ";
+          correctCount++;
+        } else {
+          highlighted += `<span class='highlight-wrong'>${typedWords[i] || ""}</span> `;
+        }
+      }
+
+      const wpm = Math.round((typedWords.length / timeTaken) * 60);
+      const accuracy = Math.round((correctCount / correctWords.length) * 100);
+
+      resultsEl.innerHTML = `
+        <p><strong>Time:</strong> ${timeTaken.toFixed(2)}s</p>
+        <p><strong>WPM:</strong> ${wpm}</p>
+        <p><strong>Accuracy:</strong> ${accuracy}%</p>
+        <p><strong>Typed:</strong> ${highlighted}</p>
+      `;
+
+      inputBox.disabled = true;
+      finishBtn.disabled = true;
+      tryAgainBtn.style.display = "inline-block";
+    }
+
+    startBtn.addEventListener("click", startTest);
+    finishBtn.addEventListener("click", finishTest);
+    tryAgainBtn.addEventListener("click", () => location.reload());
+  </script>
+</body>
+</html>
